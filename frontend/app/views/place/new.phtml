@@ -1,0 +1,60 @@
+<?php
+// print_r("Ayuhs");die;
+// print_r(($data));die;
+// echo "<select name='product' id='product'>";
+// foreach ($data as $value) {
+//     print_r($value->name);
+//     // print_r($value->id);
+//     echo "<option value='$value->name'>$value->name</option>";
+
+// }
+// die;
+?>
+<section class="vh-100">
+    <div class="container-fluid h-custom">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+
+                <form action = '/place/place' method = 'POST'>
+
+                    <!-- name input -->
+                    <div class="form-outline mb-4">
+                        <input type="text" id="form3Example3" class="form-control form-control-lg"
+                            placeholder="Enter your name" name='name' />
+                    </div>
+
+                    <!-- address input -->
+                    <div class="form-outline mb-3">
+                        <input type="text" id="form3Example4" class="form-control form-control-lg"
+                            placeholder="Enter your address" name='address' />
+                    </div>
+
+                    <label for="product">Choose the product:</label>
+
+                    <select name="product" id="product">
+                        <?php
+                        foreach ($data as $value) {
+                            echo "<option value='$value->pid'>$value->name</option>";
+                        }
+                        ?>
+                    </select>
+
+                    <!-- enter a quantity -->
+                    <div class="form-outline mb-3">
+                        <input type="number" id="form3Example4" class="form-control form-control-lg"
+                            placeholder="Enter quantity" name='quantity' />
+                    </div>
+
+
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        <input type="submit" class="btn btn-primary btn-lg"
+                            style="padding-left: 2.5rem; padding-right: 2.5rem;" value = 'Place Order'>
+
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>

@@ -11,6 +11,9 @@ $config = new Config([]);
 // Define some absolute path constants to aid in locating resources
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
+// print_r(APP_PATH);die;
+
+require_once '../vendor/autoload.php';
 
 // Register an autoloader
 $loader = new Loader();
@@ -43,6 +46,19 @@ $container->set(
         return $url;
     }
 );
+
+$container->set(
+    'mongo',
+    function () {
+        $mongo = new MongoDB\Client(
+            'mongodb+srv://deekshapandey:Deeksha123@cluster0.whrrrpj.mongodb.net/?retryWrites=true&w=majority'
+        );
+
+        return $mongo->api;
+    },
+    true
+);
+
 
 $application = new Application($container);
 

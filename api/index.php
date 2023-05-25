@@ -40,7 +40,7 @@ $manager->attach(
     'micro:beforeExecuteRoute',
     function (Event $event, $app) {
 
-        $role=$_GET['role'];
+        $role = $_GET['role'];
 
         $signer  = new Hmac();
         $builder = new Builder($signer);
@@ -74,7 +74,7 @@ $manager->attach(
 
         $tokenObject = $parser->parse($tokenReceived);
 
-        $sub=$tokenObject->getClaims()->getPayload()['sub'];
+        $sub = $tokenObject->getClaims()->getPayload()['sub'];
 
         $new_r = $sub;
 
@@ -91,8 +91,6 @@ $manager->attach(
         $acl->allow("admin", '*', '*');
         $acl->deny("user", '*', '*');
         if (true === $acl->isAllowed($new_r, $ar[1], $ar[2])) {
-            echo 'Access granted!';
-            echo "<br>";
         } else {
             echo 'Access denied :(';
             die;
@@ -128,20 +126,20 @@ $app->get(
     '/api/products',
     function () use ($app) {
 
-
         $options = [
             "limit" => (int)$_GET['limit'],
             "page" => (int)$_GET['page']
         ];
-        $collection = $this->mongo->products->find
-        (array(), $options, ['$skip' => (int)$_GET['limit'] * (int)$_GET['page']]
-    );
-
+        $collection = $this->mongo->products->find(
+            array(),
+            $options,
+            ['$skip' => (int)$_GET['limit'] * (int)$_GET['page']]
+        );
         $data = [];
-
         foreach ($collection as $robot) {
             $data[] = [
                 'id'   => $robot->_id,
+                'pid'   => $robot->id,
                 'name' => $robot->name,
                 'price' => $robot->price,
             ];
@@ -163,6 +161,7 @@ $app->get(
                 if (preg_match_all($pattern, $products->name)) {
                     $result[] = [
                         'id'   =>  $products->_id,
+                        'pid'   => $products->id,
                         'name' =>  $products->name,
                         'price' => $products->price,
                     ];
@@ -177,7 +176,61 @@ $app->get(
     }
 );
 
+$app->post(
+    '/order/create',
+    function () {
+        $payload = [
+            "name" => json_encode($_POST['name']),
+            "address" => json_encode($_POST['address']),
+            "product_id" => $_POST['product'],
+            "quantity" => $_POST['quantity'],
+            "status" => "placed",
+            "order_id" => uniqid()
+        ];
+        $collection = $this->mongo->orders;
+        $status = $collection->insertOne($payload);
+        var_dump($status);
+    }
+);
+$app->post(
+    '/order/update/{id:[0-9]+}',
+    function () {
+        $robot = $app->request->getJsonRawBody();
+        $collection = $this->mongo->orders;
+        $updateResult = $collection->updateOne(
+            ['id'  =>  $id],
+            ['$set' => [
+                "name" => $robot->name,
+                "address" => $robot->address,
+                "quantity" => $robot->quantity,
+                "status" => "declined",
 
+            ]]
+        );
+        print_r($updateResult);
+        die;
+    }
+);
+$app->get(
+    '/api/order',
+    function () use ($app) {
+        $collection = $this->mongo->orders->find();
+        $data = [];
+        foreach ($collection as $robot) {
+            $data[] = [
+                'id'   => $robot->_id,
+                'pid'   => $robot->id,
+                'name' => $robot->name,
+                'price' => $robot->price,
+                "address" => $robot->address,
+                "quantity" => $robot->quantity,
+                "status" => $robot->status,
+            ];
+        }
+
+        echo json_encode($data);
+    }
+);
 $app->handle(
     $_SERVER["REQUEST_URI"]
 );
